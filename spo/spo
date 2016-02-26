@@ -49,7 +49,7 @@ else
 	# Organizar as pastas 
 	function orgFolders {
 		
-		#Verifica se o diretório de backups já existe na pasta /var/play/sicar
+		#Verifica se o diretório de backups já existe na pasta
 		if [[ -d "backups/" ]]; then
 		
 			# Se o diretório backups/ já existe, uma busca é feita a procura de pastas de backup anteriores a data do dia para serem movidas para a pasta backups/
