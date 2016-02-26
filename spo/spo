@@ -18,17 +18,19 @@ else
 
 	
 	#Nome do serviço
-	serviceCar=sicar
+	serviceCar=$1
 	
 	#Pasta do serviço
-	servicePath=/var/play
+	servicePath=$2
 	
 	#Data do dia
-	datePath=`date +%b-%d-%m-%y`
+	datePath=`date +%b-%d-%m-%y-%02d Hours`
 	
 	#Entrando na pasta 
 	cd $servicePath
 
+	#Para log de execução do dia
+	echo -e "\nExecutando o $0 dia $datePath as \n"
 	# Organizar as pastas 
 	function orgFolders {
 		
