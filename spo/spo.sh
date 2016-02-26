@@ -37,8 +37,7 @@ else
 		
 			# Se o diretório backups/ já existe, uma busca é feita a procura de pastas de backup anteriores a data do dia para serem movidas para a pasta backups/
 			# mv -t de target, -v de verbose
-			echo -e "\nOrganizando pastas de backup\n"
-			verify="$(find $serviceCar-bkp-* -mtime +0)" 
+			verify="$(find $servicePath -maxdepth 1 -mtime +0 -iname $serviceCar-bkp\*)" 
 			
 			# Definindo a variável a cima
 			set -- $verify
@@ -50,7 +49,7 @@ else
 				if [[ -d $x ]]; then
 					# Se sim, move para a pasta backups
 					echo -e "\nMovendo os arquivos de backup do $serviceCar em $datePath para backups/\n"	
-					echo $(find $serviceCar-bkp-* -mtime +0 | xargs mv -v -t backups/)
+					echo $(find $servicePath -maxdepth 1 -mtime +0 -iname $serviceCar-bkp\* | xargs mv -v -t backups/)
 					echo ""
 				fi
 			done
@@ -72,7 +71,7 @@ else
 				if [[ -d $x ]]; then
 					# Se sim, move para a pasta backups
 					echo -e "\nMovendo os arquivos de backup do $serviceCar em $datePath para backups/\n"	
-					echo $(find $serviceCar-bkp-* -mtime +0 | xargs mv -v -t backups/)
+					echo $(find $servicePath -maxdepth 1 -mtime +0 -iname $serviceCar-bkp\* | xargs mv -v -t backups/)
 					echo ""
 				fi
 			done
@@ -89,8 +88,7 @@ else
 		
 			# Se o diretório releases/ já existe, uma busca é feita a procura de arquivos que comecem com release* com a extensão .tar.gz anteriores a data do dia, e são movidos para a pasta releases/
 			# mv -t de target, -v de verbose
-			echo -e "\nOrganizando arquivos release\n"
-			verifyRel="$(find *.tar.gz -mtime +0 -type f )"
+			verifyRel="$(find $servicePath -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
 
 
 			# definindo a variável a cima
@@ -102,7 +100,7 @@ else
 				if [[ -f $i ]]; then
 					# Se existe
 					echo -e "\nMovendo os arquivos de release do $serviceCar em $datePath para releases/\n"
-					echo $(find *.tar.gz -mtime +0 -type f | xargs mv -v -t releases/)
+					echo $(find $servicePath -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz' | xargs mv -v -t releases/)
 					echo ""
 				fi
 			done
@@ -122,7 +120,7 @@ else
 				if [[ -d $i ]]; then
 					# Se existe
 					echo -e "\nMovendo os arquivos de release do $serviceCar em $datePath para releases/\n"
-					echo $(find *.tar.gz -mtime +0 -type f | xargs mv -v -t releases/)
+					echo $(find $servicePath -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz' | xargs mv -v -t releases/)
 					echo ""
 				fi
 			done
@@ -133,25 +131,24 @@ else
 		
 		fi			
 		
-	} >> /var/log/orgfolders/orgfolders.log
+	} >> /var/log/spo/spo.log
 
 	 # Gerar logs
 	function orgFoldersLog {
 
-		if [[ ! -d "/var/log/orgfolders/" ]]; then
+		if [[ ! -d "/var/log/spo/" ]]; then
 
 			# Se já existe a pasta no sistema de logs
 			# Entra na pasta e grava o log
-			mkdir -p /var/log/orgfolders/ 
+			mkdir -p /var/log/spo/ 
 		fi
 	}
 	
 	
 
 # Chamando as funções criadas
-orgFolders
 orgFoldersLog
+orgFolders
+
 	
 fi
-	
-	
