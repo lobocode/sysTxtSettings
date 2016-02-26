@@ -16,6 +16,19 @@ if [ "$uid" != "root" ]; then
 
 else
 
+	usage="$(basename "$0") [-h] --help\n
+
+	onde:\n
+		Modo de usar: spo serviço pasta\n
+		Por exemplo: spo sicar /var/play\n
+
+		"
+
+
+	if [ $1 == "-h" ]; then
+		echo -e $usage
+	fi
+
 	
 	#Nome do serviço
 	serviceCar=$1
@@ -24,13 +37,15 @@ else
 	servicePath=$2
 	
 	#Data do dia
-	datePath=`date +%b-%d-%m-%y-%02d Hours`
+	monthPath=`date +%b`
+	datePath=`date +%d-%m-%y`
+	hoursPath=`date +%H-%M`
 	
 	#Entrando na pasta 
 	cd $servicePath
 
 	#Para log de execução do dia
-	echo -e "\nExecutando o $0 dia $datePath as \n"
+	echo -e "\nExecutando o $0 dia $datePath de $monthPath as $hoursPath horas.\n"
 	# Organizar as pastas 
 	function orgFolders {
 		
@@ -50,7 +65,7 @@ else
 				# Verificar se existem pastas anteriores à data presente de bkp no local			
 				if [[ -d $x ]]; then
 					# Se sim, move para a pasta backups
-					echo -e "\nMovendo os arquivos de backup do $serviceCar em $datePath para backups/\n"	
+					echo -e "\nMovendo os arquivos de backup do $serviceCar - $datePath de $monthPath as $hoursPath horas para backups/\n"	
 					echo $(find $servicePath -maxdepth 1 -mtime +0 -iname $serviceCar-bkp\* | xargs mv -v -t backups/)
 					echo ""
 				fi
@@ -58,7 +73,7 @@ else
 			
 			# Se a verify retornar um valor vazio ou nulo
 			if [[ -z $verify ]]; then
-				echo -e "\nNão existem pastas para backup no diretório $serviceCar em $datePath\n"
+				echo -e "\nNão existem pastas para backup do diretório $serviceCar - $datePath de $monthPath as $hoursPath horas.\n"
 			fi
 
 		else
@@ -72,7 +87,7 @@ else
 				# Verificar se existem pastas anteriores à data presente de bkp no local			
 				if [[ -d $x ]]; then
 					# Se sim, move para a pasta backups
-					echo -e "\nMovendo os arquivos de backup do $serviceCar em $datePath para backups/\n"	
+					echo -e "\nMovendo os arquivos de backup do $serviceCar - $datePath de $monthPath as $hoursPath horas para backups/\n"	
 					echo $(find $servicePath -maxdepth 1 -mtime +0 -iname $serviceCar-bkp\* | xargs mv -v -t backups/)
 					echo ""
 				fi
@@ -101,7 +116,7 @@ else
 				# Se existem arquivos *.tar.gz na pasta /var/play
 				if [[ -f $i ]]; then
 					# Se existe
-					echo -e "\nMovendo os arquivos de release do $serviceCar em $datePath para releases/\n"
+					echo -e "\nMovendo os arquivos de release do $serviceCar - $datePath de $monthPath as $hoursPath horas para releases/\n"
 					echo $(find $servicePath -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz' | xargs mv -v -t releases/)
 					echo ""
 				fi
@@ -109,7 +124,7 @@ else
 
 			# Se a verify retornar um valor vazio ou nulo
 			if [[ -z $verifyRel ]]; then
-				echo -e "\nNão existem arquivos de release para backup no diretório $serviceCar em $datePath\n"
+				echo -e "\nNão existem arquivos de release para backup no diretório $serviceCar - $datePath de $monthPath as $hoursPath horas.\n"
 			fi
 			
 		else
@@ -121,7 +136,7 @@ else
 			do
 				if [[ -d $i ]]; then
 					# Se existe
-					echo -e "\nMovendo os arquivos de release do $serviceCar em $datePath para releases/\n"
+					echo -e "\nMovendo os arquivos de release do $serviceCar - $datePath de $monthPath as $hoursPath horas para releases/\n"
 					echo $(find $servicePath -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz' | xargs mv -v -t releases/)
 					echo ""
 				fi
