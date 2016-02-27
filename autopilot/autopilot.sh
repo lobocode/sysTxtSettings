@@ -54,10 +54,10 @@ else
 
 	for i in $downloadFiles 
 	do
-		echo $i
+		echo "$(wget -c $i)" && rm -f $fileFilterNv1
 	done
 
-
+	
 
 
 	# Encontrar nome do arquivo padrão + data do dia concatenar dados e usar como base para download
