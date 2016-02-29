@@ -64,7 +64,7 @@ else
 			for x in $downloadFiles
 			do
 				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados de $dataFiles\n"
-				echo -e "$(wget -c $HostUrlFiles$x && rm fileFilterNv1)"
+				echo -e "$(wget -c $HostUrlFiles$x . && rm $fileFilterNv1)"
 			done
 		fi
 
@@ -76,7 +76,7 @@ else
 	fi
 
 
-	}
+	} 
 
 	
 	# Verificando se a pasta autopilot já existe ou não no sistema
