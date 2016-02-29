@@ -42,37 +42,45 @@ else
 	# Procurar arquivos .tar.gz com manipulação de strings na data correspondente
 	searchTxtFiles="$(grep ".*.tar.gz.* $dataFiles" $fileOutput)"
 
-	# Gera um filtro de texto que contém apenas os .tar.gz na cada correspondente
-	for x in $searchTxtFiles
-	do
-		# Ler o files.html e isola apenas os dados com *.tar.gz com a data presente
-		echo $x >> $fileFilterNv1 
-	
-	done	
+	# Verifica se existe no host algum arquivo na presente data
+	if [[ ! -z $(grep $dataFiles $fileOutput) ]]; then
+
+		# Gera um filtro de texto que contém apenas os .tar.gz na cada correspondente
+		for x in $searchTxtFiles
+		do
+			# Ler o files.html e isola apenas os dados com *.tar.gz com a data presente
+			echo $x >> $fileFilterNv1 
+		done
+
+		# Isola por manipulação de strings os arquivos a serem baixados
+		downloadFiles="$(grep ".*.tar.gz" $fileFilterNv1)"
+
+		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
+		verifyFiles="$(find . -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
+
+		for i in $verifyFiles
+		do
+			if [[ -f $i ]]; then
+				# Se existem arquivos *.tar.gz na pasta
+				echo -e "\nJá existem arquivos referentes à data $dataFiles nesta pasta\n"
+			else
+				# Se não existem
+				for x in $downloadFiles
+				do
+					# Baixar arquivos *.tar.gz direto do host e remover filtro
+					echo -e "\nWget no $HostUrlFiles em $dataFiles\n"
+					echo -e "$(wget -c $x && rm -f $fileFilterNv1)"
+				done
+			fi
+		done
 
 
-	# Isola por manipulação de strings os arquivos a serem baixados
-	downloadFiles="$(grep ".*.tar.gz" $fileFilterNv1)"
+	else
+		# Caso não existam arquivos atualizados no host
+		echo -e "\nNão existem arquivos no $HostUrlFiles atualizados em $dataFiles!\n"
 
-	# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
-	verifyFiles="$(find . -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
+	fi
 
-	for i in $verifyFiles
-	do
-		if [[ -f $i ]]; then
-			# Se existem arquivos *.tar.gz na pasta
-			echo -e "\nJá existem arquivos referentes à data $dataFiles nesta pasta\n"
-		else
-			# Se não existem
-			for x in $downloadFiles
-			do
-				# Baixar arquivos *.tar.gz direto do host e remover filtro
-
-				echo -e "\nWget no $HostUrlFiles em $dataFiles\n"
-				echo -e "$(wget -c $x && rm -f $fileFilterNv1)"
-			done
-		fi
-	done
 
 	}
 
