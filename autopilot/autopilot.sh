@@ -17,7 +17,7 @@ if [ "$uid" != "root" ]; then
 else
 
 	#Arquivos que serão gerados a partir do index.html baixado no host por wget -q
-	fileOutput=files.html
+	fileOutput=.files.html
 	fileFilterNv1=filtro.txt
 
 	# Pasta padrão onde o script irá trabalhar
@@ -58,21 +58,15 @@ else
 		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
 		verifyFiles="$(find . -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
 
-		for i in $verifyFiles
-		do
-			if [[ -f $i ]]; then
-				# Se existem arquivos *.tar.gz na pasta
-				echo -e "\nJá existem arquivos referentes à data $dataFiles nesta pasta\n"
-			else
-				# Se não existem
-				for x in $downloadFiles
-				do
-					# Baixar arquivos *.tar.gz direto do host e remover filtro
-					echo -e "\nWget no $HostUrlFiles em $dataFiles\n"
-					echo -e "$(wget -c $x && rm -f $fileFilterNv1)"
-				done
-			fi
-		done
+		if [[ -f $verifyFiles ]]; then
+			echo -e "\nJá existem arquivos atualizados de $dataFiles nesta pasta\n"
+		else
+			for x in $downloadFiles
+			do
+				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados de $dataFiles\n"
+				echo -e "$(wget -c $HostUrlFiles$x && rm fileFilterNv1)"
+			done
+		fi
 
 
 	else
