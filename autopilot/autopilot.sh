@@ -78,7 +78,9 @@ else
 			for x in $downloadFiles
 			do
 				# Baixar arquivos *.tar.gz direto do host e remover filtro
-				echo -e "$(\nwget -c $x em $dataFiles\n)" && rm -f $fileFilterNv1
+
+				echo -e "\nWget no $HostUrlFiles em $dataFiles\n"
+				wget -c $x && rm -f $fileFilterNv1
 		fi
 	done
 
