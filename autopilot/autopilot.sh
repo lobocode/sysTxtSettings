@@ -20,8 +20,29 @@ else
 	fileOutput=files.html
 	fileFilterNv1=filtro.txt
 
+	# Pasta padrão onde o script irá trabalhar
+	pilotPath=autopilot/
+
+	# Forçando o terminal a identificar o usuário que está logado 
+	USER_HOME=$(eval echo ~${SUDO_USER})	
+
+	# Verificando se a pasta autopilot já existe ou não no sistema
+	if [[ -d "$pilotPath" ]]: then
+
+		# Se a pasta autopilot/ já existe, entra e executa o script
+		cd /home/${SUDO_USER}/$pilotPath/ && ScanDown
+	else
+		# Se não existe a pasta, cria o diretório, entra e executa o script
+		mkdir -p /home/${SUDO_USER}/$pilotPath && cd /home/${SUDO_USER}/$pilotPath && ScanDown
+	fi
+
+
+	# Função responsável pela execução do Scan e do Download dos arquivos *.tar.gz na data de hoje existentes no host
+
+	function ScanDown {
+
 	# Endereço onde estarão os arquivos
-	#HostUrlFiles="http://www.car.ti.lemaf.ufla.br/bkp/releases_prod/"
+	HostUrlFiles="http://www.car.ti.lemaf.ufla.br/bkp/releases_prod/"
 
 	# Baixa o index.html direto do host, limpa os dados de tag's em html com sed, gera um arquivo limpo chamado files.html e remove o primeiro arquivo index.html baixado.
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
@@ -57,17 +78,27 @@ else
 			for x in $downloadFiles
 			do
 				# Baixar arquivos *.tar.gz direto do host e remover filtro
-				echo -e "$(wget -c $x)" && rm -f $fileFilterNv1
+				echo -e "$(\nwget -c $x em $dataFiles\n)" && rm -f $fileFilterNv1
 		fi
 	done
 
-
+	}
 
 	
 
 
-	# Encontrar nome do arquivo padrão + data do dia concatenar dados e usar como base para download
 
+
+
+
+
+
+
+
+
+
+
+# fim do script
 fi
 
 
