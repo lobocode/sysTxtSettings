@@ -26,17 +26,6 @@ else
 	# Forçando o terminal a identificar o usuário que está logado 
 	USER_HOME=$(eval echo ~${SUDO_USER})	
 
-	# Verificando se a pasta autopilot já existe ou não no sistema
-	if [[ -d "$pilotPath" ]]: then
-
-		# Se a pasta autopilot/ já existe, entra e executa o script
-		cd /home/${SUDO_USER}/$pilotPath/ && ScanDown
-	else
-		# Se não existe a pasta, cria o diretório, entra e executa o script
-		mkdir -p /home/${SUDO_USER}/$pilotPath && cd /home/${SUDO_USER}/$pilotPath && ScanDown
-	fi
-
-
 	# Função responsável pela execução do Scan e do Download dos arquivos *.tar.gz na data de hoje existentes no host
 
 	function ScanDown {
@@ -80,23 +69,23 @@ else
 				# Baixar arquivos *.tar.gz direto do host e remover filtro
 
 				echo -e "\nWget no $HostUrlFiles em $dataFiles\n"
-				wget -c $x && rm -f $fileFilterNv1
+				echo -e "$(wget -c $x && rm -f $fileFilterNv1)"
+			done
 		fi
 	done
 
 	}
 
 	
+	# Verificando se a pasta autopilot já existe ou não no sistema
+	if [[ -d "$pilotPath" ]]; then
 
-
-
-
-
-
-
-
-
-
+		# Se a pasta autopilot/ já existe, entra e executa o script
+		cd /home/${SUDO_USER}/$pilotPath/ && ScanDown
+	else
+		# Se não existe a pasta, cria o diretório, entra e executa o script
+		mkdir -p /home/${SUDO_USER}/$pilotPath && cd /home/${SUDO_USER}/$pilotPath && ScanDown
+	fi
 
 
 
