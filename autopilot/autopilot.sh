@@ -21,7 +21,10 @@ else
 	fileFilterNv1=filtro.txt
 
 	# Pasta padrão onde o script irá trabalhar
-	pilotPath=autopilot/
+	pilotPath=autopilot
+
+	# Diretório de update, onde se armazena os arquivos baixados no host através do parse
+	dirUp=update
 
 	# Forçando o terminal a identificar o usuário que está logado 
 	USER_HOME=$(eval echo ~${SUDO_USER})	
@@ -31,7 +34,7 @@ else
 	function ScanDown {
 
 	# Endereço onde estarão os arquivos
-	HostUrlFiles="http://www.car.ti.lemaf.ufla.br/bkp/releases_prod/"
+	HostUrlFiles="url"
 
 	# Baixa o index.html direto do host, limpa os dados de tag's em html com sed, gera um arquivo limpo chamado files.html e remove o primeiro arquivo index.html baixado.
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
@@ -55,17 +58,33 @@ else
 		# Isola por manipulação de strings os arquivos a serem baixados
 		downloadFiles="$(grep ".*.tar.gz" $fileFilterNv1)"
 
-		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
-		verifyFiles="$(find . -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
+		# Criando diretório caso não exista para armazenar os arquivos baixados do host
+		if [[ -d "$dirUp" ]]; then
+			echo -e "\nJá existe a pasta $dirUp em $pilotPath\n"
+		else
+			mkdir $dirUp
+		fi		
 
+		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
+		verifyFiles="$(find /home/${SUDO_USER}/$pilotPath/$dirUp -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
+
+		# Verificando se já existem arquivos atualizados na pasta e se não existirem, baixa-os.
 		if [[ -f $verifyFiles ]]; then
 			echo -e "\nJá existem arquivos atualizados de $dataFiles nesta pasta\n"
 		else
 			for x in $downloadFiles
 			do
 				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados de $dataFiles\n"
-				echo -e "$(wget -c $HostUrlFiles$x . && rm $fileFilterNv1)"
+				echo -e "$(wget -c -N $HostUrlFiles$x $dirUp/)"
 			done
+		fi
+
+		# Condicional redundante necessária para remover filtro
+		if [[ -f $verifyFiles ]]; then
+			
+			#Verifica novamente para poder excluir o arquivo de filtro.txt
+			echo -e "\nRemovendo filtro:\n"
+			rm $fileFilterNv1
 		fi
 
 
@@ -86,7 +105,7 @@ else
 		cd /home/${SUDO_USER}/$pilotPath/ && ScanDown
 	else
 		# Se não existe a pasta, cria o diretório, entra e executa o script
-		mkdir -p /home/${SUDO_USER}/$pilotPath && cd /home/${SUDO_USER}/$pilotPath && ScanDown
+		mkdir -p /home/${SUDO_USER}/$pilotPath/ && cd /home/${SUDO_USER}/$pilotPath && ScanDown
 	fi
 
 
