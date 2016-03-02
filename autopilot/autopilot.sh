@@ -5,6 +5,7 @@
 Auto Pilot
 
 Script facilitador para update de sistemas de homologação e produção.
+Obs: Não configurado para rodar no Cron. Este script é um facilitador de atualização dos sistemas de homologação e produção. No entanto, não é recomendável agendar a execução dele no cron visto que ele é verboso. Isto é, há interrupções, perguntas, parâmetros e caminhos que não são relativos para a execução através do cron.
 
 COMMENT
 
@@ -29,12 +30,12 @@ else
 	# Forçando o terminal a identificar o usuário que está logado 
 	USER_HOME=$(eval echo ~${SUDO_USER})	
 
+	# Endereço onde estarão os arquivos
+	HostUrlFiles="url"
+
 	# Função responsável pela execução do Scan e do Download dos arquivos *.tar.gz na data de hoje existentes no host
 
 	function ScanDown {
-
-	# Endereço onde estarão os arquivos
-	HostUrlFiles="url"
 
 	# Baixa o index.html direto do host, limpa os dados de tag's em html com sed, gera um arquivo limpo chamado files.html e remove o primeiro arquivo index.html baixado.
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
@@ -60,33 +61,51 @@ else
 
 		# Criando diretório caso não exista para armazenar os arquivos baixados do host
 		if [[ -d "$dirUp" ]]; then
-			echo -e "\nJá existe a pasta $dirUp em $pilotPath\n"
+			exit 1
 		else
+			echo -e "\nCriando pasta de updates\n"
 			mkdir $dirUp
 		fi		
 
+		# ---------------------------------------------------------------------------------------------------
+		# Trabalhando com manipulação de pastas e arquivos 
 		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
-		verifyFiles="$(find /home/${SUDO_USER}/$pilotPath/$dirUp -maxdepth 1 -mtime +0 -type f -iname '*.tar.gz')"
 
-		# Verificando se já existem arquivos atualizados na pasta e se não existirem, baixa-os.
-		if [[ -f $verifyFiles ]]; then
-			echo -e "\nJá existem arquivos atualizados de $dataFiles nesta pasta\n"
-		else
-			for x in $downloadFiles
+		find_stuff() { find $dirUp -maxdepth 1 -mtime "$1" -type f -iname '*.tar.gz'; }
+
+		# Modificando o parâmetro -mtime para +0 do find_stuff
+		verifyFiles=$(find_stuff +0)
+
+		for x in $verifyFiles
+		do
+			# Se existirem arquivos em $dirUp anteriores à data do sistema, se cria um diretório chamado backups onde serão movidos.
+			# Aqui é onde o SPO irá trabalhar para organizar as coisas
+			if [[ -f $x ]]; then
+				mkdir -p $dirUp/backups/
+				# O diretório backups estará em /autopilot/backups
+				cd $dirUp && mv *.tar.gz backups/ && mv -f backups ../
+			fi
+		done
+
+		# Se no entanto o diretório $dirUp estiver vazio, efetua o Download dos arquivos atualizados do host
+		if find $dirUp -maxdepth 0 -empty | read v; then
+			for d in $downloadFiles
 			do
-				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados de $dataFiles\n"
-				echo -e "$(wget -c -N $HostUrlFiles$x $dirUp/)"
+				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados no dia $dataFiles\n"
+				echo -e "$(wget -c -N -P $dirUp $HostUrlFiles$d)"
 			done
+
 		fi
 
-		# Condicional redundante necessária para remover filtro
-		if [[ -f $verifyFiles ]]; then
-			
-			#Verifica novamente para poder excluir o arquivo de filtro.txt
-			echo -e "\nRemovendo filtro:\n"
-			rm $fileFilterNv1
-		fi
+		verifyFiles=$(find_stuff 0)
 
+		# Verificando se já existem arquivos atualizados na pasta 
+		for i in $verifyFiles
+		do
+			if [[ -f $i ]]; then
+				echo -e "\nJá existem arquivos atualizados de $dataFiles em $dirUp\n"
+			fi
+		done		
 
 	else
 		# Caso não existam arquivos atualizados no host
@@ -94,18 +113,19 @@ else
 
 	fi
 
+	# ---------------------------------------------------------------------------------------------------
 
 	} 
 
 	
 	# Verificando se a pasta autopilot já existe ou não no sistema
 	if [[ -d "$pilotPath" ]]; then
-
-		# Se a pasta autopilot/ já existe, entra e executa o script
-		cd /home/${SUDO_USER}/$pilotPath/ && ScanDown
+		# Se a pasta autopilot/ já existe, ignora.
+		exit 1
 	else
 		# Se não existe a pasta, cria o diretório, entra e executa o script
-		mkdir -p /home/${SUDO_USER}/$pilotPath/ && cd /home/${SUDO_USER}/$pilotPath && ScanDown
+		echo -e "\nCriando o diretório $pilotPath em /home/${SUDO_USER}/\n"
+		mkdir -p /home/${SUDO_USER}/$pilotPath/ 
 	fi
 
 
