@@ -41,13 +41,13 @@ else
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
 	
 	# Gravar a data no formato mostrado no arquivo files.html
-	dataFiles=`date +%d-%b-%Y`
+	dateFiles=`date +%d-%b-%Y`
 
 	# Procurar arquivos .tar.gz com manipulação de strings na data correspondente
-	searchTxtFiles="$(grep ".*.tar.gz.* $dataFiles" $fileOutput)"
+	searchTxtFiles="$(grep ".*.tar.gz.* $dateFiles" $fileOutput)"
 
 	# Verifica se existe no host algum arquivo na presente data
-	if [[ ! -z $(grep $dataFiles $fileOutput) ]]; then
+	if [[ ! -z $(grep $dateFiles $fileOutput) ]]; then
 
 		# Gera um filtro de texto que contém apenas os .tar.gz na cada correspondente
 		for x in $searchTxtFiles
@@ -71,10 +71,10 @@ else
 		# Trabalhando com manipulação de pastas e arquivos 
 		# Procurar arquivos .tar.gz com find na pasta que estamos trabalhando
 
-		find_stuff() { find $dirUp -maxdepth 1 -mtime "$1" -type f -iname '*.tar.gz'; }
+		find_stuff() { find "$1" -maxdepth 1 -mtime "$2" -type f -iname '*.tar.gz'; }
 
 		# Modificando o parâmetro -mtime para +0 do find_stuff
-		verifyOldFiles=$(find_stuff +0)
+		verifyOldFiles=$(find_stuff $dirUp +0)
 
 		for x in $verifyOldFiles
 		do
@@ -91,25 +91,26 @@ else
 		if find $dirUp -maxdepth 0 -empty | read v; then
 			for d in $downloadFiles
 			do
-				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados no dia $dataFiles\n"
+				echo -e "\nBaixando arquivos do $HostUrlFiles atualizados no dia $dateFiles\n"
 				echo -e "$(wget -c -N -P $dirUp $HostUrlFiles$d)"
 			done
 
 		fi
 
-		verifyNewFiles=$(find_stuff 0)
+		verifyNewFiles=$(find_stuff $dirUp 0)
 
 		# Verificando se já existem arquivos atualizados na pasta 
 		for i in $verifyNewFiles
 		do
 			if [[ -f $i ]]; then
-				echo -e "\nJá existem arquivos atualizados de $dataFiles em $dirUp\n"
+				echo -e "\nDescompactando $dateFiles em $dirUp\n"
+				cd $dirUp && ls *.tar.gz | xargs tar -vzxf
 			fi
 		done		
 
 	else
 		# Caso não existam arquivos atualizados no host
-		echo -e "\nNão existem arquivos no $HostUrlFiles atualizados em $dataFiles!\n"
+		echo -e "\nNão existem arquivos no $HostUrlFiles atualizados em $dateFiles!\n"
 
 	fi
 
