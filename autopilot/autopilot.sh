@@ -83,7 +83,7 @@ else
 			if [[ -f $x ]]; then
 				mkdir -p $dirUp/backups/
 				# O diretório backups estará em /autopilot/backups
-				cd $dirUp && mv *.tar.gz backups/ && mv -f backups ../
+				$x | xargs mv backups/
 			fi
 		done
 
