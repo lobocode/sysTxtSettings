@@ -35,7 +35,7 @@ else
 
 	# Função responsável pela execução do Scan e do Download dos arquivos *.tar.gz na data de hoje existentes no host
 
-	function ScanDown() {
+	function ScanDown {
 
 	# Baixa o index.html direto do host, limpa os dados de tag's em html com sed, gera um arquivo limpo chamado files.html e remove o primeiro arquivo index.html baixado.
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
@@ -61,7 +61,7 @@ else
 
 		# Criando diretório caso não exista para armazenar os arquivos baixados do host
 		if [[ -d "$dirUp" ]]; then
-			exit 1
+			:
 		else
 			echo -e "\nCriando pasta de updates\n"
 			mkdir $dirUp
@@ -74,9 +74,9 @@ else
 		find_stuff() { find $dirUp -maxdepth 1 -mtime "$1" -type f -iname '*.tar.gz'; }
 
 		# Modificando o parâmetro -mtime para +0 do find_stuff
-		verifyFiles=$(find_stuff +0)
+		verifyOldFiles=$(find_stuff +0)
 
-		for x in $verifyFiles
+		for x in $verifyOldFiles
 		do
 			# Se existirem arquivos em $dirUp anteriores à data do sistema, se cria um diretório chamado backups onde serão movidos.
 			# Aqui é onde o SPO irá trabalhar para organizar as coisas
@@ -97,10 +97,10 @@ else
 
 		fi
 
-		verifyFiles=$(find_stuff 0)
+		verifyNewFiles=$(find_stuff 0)
 
 		# Verificando se já existem arquivos atualizados na pasta 
-		for i in $verifyFiles
+		for i in $verifyNewFiles
 		do
 			if [[ -f $i ]]; then
 				echo -e "\nJá existem arquivos atualizados de $dataFiles em $dirUp\n"
@@ -118,12 +118,13 @@ else
 	} 
 
 # Pemitir que o script seja chamado por fora
-$@
+#$@
+ScanDown
 	
 	# Verificando se a pasta autopilot já existe ou não no sistema
 	if [[ -d "/home/${SUDO_USER}/$pilotPath/" ]]; then
 		# Se a pasta autopilot/ já existe, ignora.
-		exit 1
+		:
 	else
 		# Se não existe a pasta, cria o diretório, entra e executa o script
 		echo -e "\nCriando o diretório $pilotPath em /home/${SUDO_USER}/\n"
