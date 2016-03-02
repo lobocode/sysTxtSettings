@@ -35,7 +35,7 @@ else
 
 	# Função responsável pela execução do Scan e do Download dos arquivos *.tar.gz na data de hoje existentes no host
 
-	function ScanDown {
+	function ScanDown() {
 
 	# Baixa o index.html direto do host, limpa os dados de tag's em html com sed, gera um arquivo limpo chamado files.html e remove o primeiro arquivo index.html baixado.
 	wget -q $HostUrlFiles | xargs sed -e 's/<[^>]*>//g' index.html > $fileOutput && sed -i 1,2d $fileOutput && rm -f index.html
@@ -117,9 +117,11 @@ else
 
 	} 
 
+# Pemitir que o script seja chamado por fora
+$@
 	
 	# Verificando se a pasta autopilot já existe ou não no sistema
-	if [[ -d "$pilotPath" ]]; then
+	if [[ -d "/home/${SUDO_USER}/$pilotPath/" ]]; then
 		# Se a pasta autopilot/ já existe, ignora.
 		exit 1
 	else
