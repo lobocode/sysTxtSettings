@@ -1,0 +1,6 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+127.0.1.1   atrevidix
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+# Virtual host
+177.105.35.36   p2p.ti.lemaf.ufla.br
