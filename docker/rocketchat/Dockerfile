@@ -8,16 +8,12 @@ RUN groupadd -r rocketchat \
 
 VOLUME /app/uploads
 
-# gpg: key 4FD08014: public key
-RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 0E163286C20D07B9787EBE9FD7F9D0414FD08104
-
 ENV RC_VERSION 0.24.0
 
 WORKDIR /app
 
 RUN curl -fSL "https://rocket.chat/releases/${RC_VERSION}/download" -o rocket.chat.tgz \
 &&  curl -fSL "https://rocket.chat/releases/${RC_VERSION}/asc" -o rocket.chat.tgz.asc \
-&&  gpg --batch --verify rocket.chat.tgz.asc rocket.chat.tgz \
 &&  tar zxvf rocket.chat.tgz \
 &&  rm rocket.chat.tgz rocket.chat.tgz.asc \
 &&  cd bundle/programs/server \
